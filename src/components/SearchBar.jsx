@@ -1,11 +1,20 @@
 import React, { useState } from "react";
-import { TextField, InputAdornment, IconButton, Box } from "@mui/material";
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+  Box,
+  useTheme as useMuiTheme,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useMovies } from "../context/MovieContext";
+import { useTheme } from "../context/ThemeContext";
 
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { search } = useMovies();
+  const { darkMode } = useTheme(); 
+  const muiTheme = useMuiTheme(); 
 
   const handleSearch = (e) => {
     e.preventDefault();

@@ -1,12 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { useTheme } from "../context/ThemeContext";
 import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
-  const { darkMode, toggleTheme } = useTheme();
-
   return (
     <AppBar position="static" color="primary">
       <Toolbar>

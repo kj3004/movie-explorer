@@ -36,3 +36,40 @@
     transform: rotate(360deg);
   }
 }
+
+/* Improved grid layout */
+.MuiGrid-container.grid-container {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  padding: 16px;
+}
+
+/* Smooth transitions */
+.MuiPaper-root {
+  transition: all 0.3s ease;
+}
+
+/* Better image loading */
+img {
+  transition: opacity 0.3s ease;
+}
+
+img:not([src]) {
+  opacity: 0;
+}
+
+/* Cast section scrolling */
+.cast-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.cast-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.cast-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}

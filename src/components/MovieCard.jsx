@@ -8,15 +8,20 @@ import {
   Button,
   Rating,
   Box,
+  useTheme
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useMovies } from "../context/MovieContext";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { useTheme as useAppTheme } from "../context/ThemeContext";
 
 const MovieCard = ({ movie }) => {
   const { addToFavorites, removeFromFavorites, favorites } = useMovies();
   const isFavorite = favorites.some((fav) => fav.id === movie.id);
+  const muiTheme = useTheme();
+  const { darkMode } = useAppTheme();
+
 
   const handleFavoriteClick = () => {
     if (isFavorite) {

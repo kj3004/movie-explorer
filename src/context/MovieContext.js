@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   fetchTrendingMovies,
   searchMovies,
@@ -21,6 +28,7 @@ export const MovieProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Load trending movies only once when component mounts
   useEffect(() => {
     const loadTrendingMovies = async () => {
       try {
@@ -37,18 +45,33 @@ export const MovieProvider = ({ children }) => {
     loadTrendingMovies();
   }, []);
 
+  // Persist favorites to localStorage
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  const search = async (searchQuery, newPage = 1) => {
+  // Memoize search function to prevent recreating on each render
+  const search = useCallback(async (searchQuery, newPage = 1) => {
     if (!searchQuery.trim()) return;
 
     try {
       setLoading(true);
       setQuery(searchQuery);
       const data = await searchMovies(searchQuery, newPage);
-      setMovies(newPage === 1 ? data.results : [...movies, ...data.results]);
+
+      setMovies((prevMovies) => {
+        if (newPage === 1) {
+          return data.results;
+        } else {
+          // Avoid duplicate movies when loading more
+          const existingIds = new Set(prevMovies.map((m) => m.id));
+          const newMovies = data.results.filter(
+            (movie) => !existingIds.has(movie.id)
+          );
+          return [...prevMovies, ...newMovies];
+        }
+      });
+
       setTotalPages(data.total_pages);
       setPage(newPage);
     } catch (err) {
@@ -56,58 +79,105 @@ export const MovieProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadMore = async () => {
-    if (page < totalPages) {
+  // Memoize loadMore function
+  const loadMore = useCallback(async () => {
+    if (page < totalPages && query.trim()) {
       await search(query, page + 1);
     }
-  };
+  }, [page, totalPages, query, search]);
 
-  const getMovieDetails = async (id) => {
-    try {
-      setLoading(true);
-      const movie = await fetchMovieDetails(id);
-      setSelectedMovie(movie);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Memoize getMovieDetails function to prevent recreating on each render
+  const getMovieDetails = useCallback(
+    async (id) => {
+      if (!id) return;
 
-  const addToFavorites = (movie) => {
-    if (!favorites.some((fav) => fav.id === movie.id)) {
-      setFavorites([...favorites, movie]);
-    }
-  };
+      try {
+        setLoading(true);
+        const movie = await fetchMovieDetails(id);
 
-  const removeFromFavorites = (id) => {
-    setFavorites(favorites.filter((movie) => movie.id !== id));
-  };
+        // Only update if the movie is different from current selectedMovie
+        if (!selectedMovie || selectedMovie.id !== movie.id) {
+          setSelectedMovie(movie);
+        }
+        return movie;
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedMovie]
+  );
+
+  // Memoize favorites management functions
+  const addToFavorites = useCallback((movie) => {
+    if (!movie) return;
+
+    setFavorites((prevFavorites) => {
+      if (!prevFavorites.some((fav) => fav.id === movie.id)) {
+        return [...prevFavorites, movie];
+      }
+      return prevFavorites;
+    });
+  }, []);
+
+  const removeFromFavorites = useCallback((id) => {
+    if (!id) return;
+
+    setFavorites((prevFavorites) =>
+      prevFavorites.filter((movie) => movie.id !== id)
+    );
+  }, []);
+
+  // Memoize context value to prevent unnecessary re-renders of consuming components
+  const contextValue = useMemo(
+    () => ({
+      movies,
+      trendingMovies,
+      selectedMovie,
+      loading,
+      error,
+      query,
+      page,
+      totalPages,
+      favorites,
+      search,
+      loadMore,
+      getMovieDetails,
+      addToFavorites,
+      removeFromFavorites,
+    }),
+    [
+      movies,
+      trendingMovies,
+      selectedMovie,
+      loading,
+      error,
+      query,
+      page,
+      totalPages,
+      favorites,
+      search,
+      loadMore,
+      getMovieDetails,
+      addToFavorites,
+      removeFromFavorites,
+    ]
+  );
 
   return (
-    <MovieContext.Provider
-      value={{
-        movies,
-        trendingMovies,
-        selectedMovie,
-        loading,
-        error,
-        query,
-        page,
-        totalPages,
-        favorites,
-        search,
-        loadMore,
-        getMovieDetails,
-        addToFavorites,
-        removeFromFavorites,
-      }}
-    >
+    <MovieContext.Provider value={contextValue}>
       {children}
     </MovieContext.Provider>
   );
 };
 
-export const useMovies = () => useContext(MovieContext);
+export const useMovies = () => {
+  const context = useContext(MovieContext);
+  if (!context) {
+    throw new Error("useMovies must be used within a MovieProvider");
+  }
+  return context;
+};
