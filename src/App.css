@@ -73,3 +73,21 @@ img:not([src]) {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
+.load-more-btn {
+  transition: all 0.3s ease;
+  margin: 2rem auto;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.load-more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.7;
+  transform: none;
+  box-shadow: none;
+}

@@ -30,6 +30,7 @@ const MovieDetails = () => {
   const {
     selectedMovie,
     getMovieDetails,
+    loading,
     error,
     addToFavorites,
     removeFromFavorites,
@@ -93,6 +94,7 @@ const MovieDetails = () => {
       ) : (
         <Paper elevation={3} sx={{ p: 3 }}>
           <Grid container spacing={3}>
+            {/* Removed 'item' prop and kept xs and md for now */}
             <Grid xs={12} md={4}>
               <Box sx={{ display: "flex", justifyContent: "center" }}>
                 {selectedMovie?.poster_path ? (
