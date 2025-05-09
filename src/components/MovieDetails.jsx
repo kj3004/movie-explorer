@@ -17,11 +17,11 @@ import {
   Avatar,
   Rating,
   IconButton,
-  YouTubeIcon,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import YouTubeIcon from "@mui/icons-material/YouTube";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -75,7 +75,7 @@ const MovieDetails = () => {
                 src={
                   selectedMovie.poster_path
                     ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
-                    : "/no-poster.jpg"
+                    : "/no-poster.svg"
                 }
                 alt={selectedMovie.title}
                 style={{ maxWidth: "100%", borderRadius: "8px" }}
@@ -171,7 +171,7 @@ const MovieDetails = () => {
                     src={
                       person.profile_path
                         ? `https://image.tmdb.org/t/p/w200${person.profile_path}`
-                        : "/no-avatar.jpg"
+                        : "/no-avatar.svg"
                     }
                     sx={{ width: 80, height: 80, mb: 1 }}
                   />
