@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -14,19 +14,34 @@ import MovieDetails from "./components/MovieDetails";
 import FavoritesPage from "./pages/FavoritesPage";
 import { CssBaseline } from "@mui/material";
 
-const PrivateRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem("isAuthenticated");
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
-
 const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check authentication status on app load
+    const authStatus = localStorage.getItem("isAuthenticated");
+    setIsAuthenticated(authStatus === "true");
+  }, []);
+
+  const PrivateRoute = ({ children }) => {
+    return isAuthenticated ? children : <Navigate to="/login" replace />;
+  };
+
   return (
     <ThemeProvider>
       <MovieProvider>
         <Router>
           <CssBaseline />
-          <Navbar />
+          <Navbar
+            isAuthenticated={isAuthenticated}
+            setIsAuthenticated={setIsAuthenticated}
+          />
           <Routes>
+            <Route
+              path="/login"
+              element={<Login setIsAuthenticated={setIsAuthenticated} />}
+            />
+
             <Route
               path="/"
               element={
@@ -35,6 +50,7 @@ const App = () => {
                 </PrivateRoute>
               }
             />
+
             <Route
               path="/movie/:id"
               element={
@@ -43,6 +59,7 @@ const App = () => {
                 </PrivateRoute>
               }
             />
+
             <Route
               path="/favorites"
               element={
@@ -51,7 +68,6 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-            <Route path="/login" element={<Login />} />
           </Routes>
         </Router>
       </MovieProvider>

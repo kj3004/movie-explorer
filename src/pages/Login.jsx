@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Paper, Box } from "@mui/material";
 import { useTheme } from "../context/ThemeContext";
 
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,7 +14,8 @@ const Login = () => {
     e.preventDefault();
     if (username === "admin" && password === "password") {
       localStorage.setItem("isAuthenticated", "true");
-      navigate("/");
+      setIsAuthenticated(true);
+      navigate("/", { replace: true });
     } else {
       setError("Invalid username or password");
     }
